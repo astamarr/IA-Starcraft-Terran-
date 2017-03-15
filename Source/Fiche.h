@@ -17,7 +17,6 @@ public:
 		ATTACK
 	};
 
-	Fiche();
 	Fiche(const Type& type, const BWAPI::UnitType& unitType, const BWAPI::UnitCommandType& unitCommand);
 	~Fiche();
 
