@@ -47,18 +47,22 @@ bool Fiche::isUnitAGoodCandidate(const BWAPI::Unit& unit, unsigned int& score)
 	score = getScore(unit);
 	bool goodCandidate = false;
 	unsigned int best{ 0 }, worst{std::numeric_limits<unsigned int>::max()};
+	//go through every registered units and compare its score with unit
 	for (std::list<std::pair<BWAPI::Unit, unsigned int>>::iterator& unit = registeredUnits.begin(); unit != registeredUnits.end(); ++unit)
 	{
+		//update worst unit
 		if (unit->second < worst)
 		{
 			worst = unit->second;
 			worstUnit = unit;
 		}
+		//update best unit
 		if (unit->second > best)
 		{
 			best = unit->second;
 			bestunit = unit;
 		}
+		//at least one unit is worst than the tested unit
 		if (score > unit->second) goodCandidate = true;
 	}
 
@@ -72,29 +76,37 @@ unsigned int Fiche::getScore(const BWAPI::Unit& unit)
 
 	switch (type)
 	{
+	// The task require Building something
 	case BUILDING:
 	{
 		BWAPI::TilePosition buildPos = builder.getBuildLocationNear(unit->getTilePosition(), unitOrder);
 		bool ok = BWAPI::Broodwar->canBuildHere(buildPos, unitOrder);
 	}break;
+	// The task require reasearching something
 	case RESEARCH:
 	{
 
 	}break;
+	// The task require Making unit
 	case UNIT:
 	{
 		
 	}break;
+	// The task require Gathering resources
 	case GATHERING:
 	{
-		score = unit->getDistance(unit->getClosestUnit(BWAPI::Filter::IsMineralField));
+		if (unitOrder == BWAPI::UnitTypes::Resource_Mineral_Field)
+			score = unit->getDistance(unit->getClosestUnit(BWAPI::Filter::IsMineralField));
+		else
+			score = unit->getDistance(unit->getClosestUnit(BWAPI::Filter::IsRefinery));
 	}break;
+	// The task require Attacking something
 	case ATTACK:
 	{
-
-	}break;
-	}
 		score = unit->getDistance(unit->getClosestUnit(BWAPI::Filter::IsEnemy));
 		if (unit->isAttacking()) score = static_cast<unsigned int>(score*1.5);
+	}break;
+	}
+		
 	return score;
 }
