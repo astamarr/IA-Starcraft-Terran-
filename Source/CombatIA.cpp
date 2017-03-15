@@ -16,3 +16,8 @@ Fiche CombatIA::createFiche()
 
 	return fiche;
 }
+
+void CombatIA::update()
+{
+
+}

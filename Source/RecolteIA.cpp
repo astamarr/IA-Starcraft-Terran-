@@ -18,3 +18,8 @@ Fiche RecolteIA::createFiche()
 
 	return fiche;
 }
+
+void RecolteIA::update()
+{
+
+}

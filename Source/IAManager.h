@@ -9,10 +9,11 @@
 class IAManager
 {
 public:
-	IAManager();
-	~IAManager();
+	void assignUnits(BWAPI::Unitset units);
+	virtual void update() = 0;
 protected:
 	virtual Fiche createFiche() = 0;
 	std::vector<std::shared_ptr<Fiche>> fiches;
+	BWAPI::Unitset assignedUnits;
 };
 

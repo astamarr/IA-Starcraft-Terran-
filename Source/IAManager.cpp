@@ -1,10 +1,6 @@
 #include "IAManager.h"
 
-IAManager::IAManager()
+void IAManager::assignUnits(BWAPI::Unitset set)
 {
-
-}
-
-IAManager::~IAManager()
-{
+	assignedUnits = set;
 }

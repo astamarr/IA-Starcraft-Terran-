@@ -7,6 +7,7 @@ class RecolteIA : public IAManager
 public:
 	RecolteIA();
 	~RecolteIA();
+	void update();
 private:
 	Fiche createFiche();
 };

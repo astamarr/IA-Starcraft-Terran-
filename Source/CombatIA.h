@@ -7,6 +7,7 @@ class CombatIA : public IAManager
 public:
 	CombatIA();
 	~CombatIA();
+	void update();
 private:
 	Fiche createFiche();
 };
