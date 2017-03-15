@@ -12,8 +12,9 @@ public:
 	StrategyManager();
 	~StrategyManager();
 
-	void update();
-	//bool addFiche(std::shared_ptr<Fiche> fiche);
+	void update(const int& framesCount);
+	void addFiche(std::shared_ptr<Fiche> fiche);
+	void removeFiche(std::shared_ptr<Fiche> fiche);
 
 private:
 	IAManager* ressourcesManager;

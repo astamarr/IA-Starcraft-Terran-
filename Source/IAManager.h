@@ -13,7 +13,10 @@ public:
 	virtual void update() = 0;
 protected:
 	virtual Fiche createFiche() = 0;
+	void findBestPosition(const BWAPI::Unit&);
 	std::vector<std::shared_ptr<Fiche>> fiches;
 	BWAPI::Unitset assignedUnits;
+
+	Fiche* defaultBehaviour;
 };
 

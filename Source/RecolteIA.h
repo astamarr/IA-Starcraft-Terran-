@@ -8,8 +8,12 @@ public:
 	RecolteIA();
 	~RecolteIA();
 	void update();
+
+	void setRessourcesRequired(short, short);
 private:
 	Fiche createFiche();
+	short minerals;
+	short gas;
 };
 
 /*

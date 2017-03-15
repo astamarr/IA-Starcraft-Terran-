@@ -7,8 +7,11 @@ using namespace Filter;
 
 void ExampleAIModule::onStart()
 {
+	//create strat manager
+	manager = new StrategyManager();
+
   // Hello World!
-  Broodwar->sendText("Hello world!");
+  Broodwar->sendText("gl hf");
 
   // Print the map name.
   // BWAPI returns std::string when retrieving a string, don't forget to add .c_str() when printing!
@@ -57,9 +60,19 @@ void ExampleAIModule::onEnd(bool isWinner)
   if ( isWinner )
   {
     // Log your win here!
+	  Broodwar->sendText("gg ez, git gud");
   }
+
+  //free the manager
+  delete manager;
 }
 
+void ExampleAIModule::onFrame()
+{
+	manager->update(Broodwar->getFrameCount());
+}
+
+/*
 void ExampleAIModule::onFrame()
 {
   // Called once every game frame
@@ -191,6 +204,7 @@ void ExampleAIModule::onFrame()
 
   } // closure: unit iterator
 }
+*/
 
 void ExampleAIModule::onSendText(std::string text)
 {
