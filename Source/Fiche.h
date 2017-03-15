@@ -24,7 +24,11 @@ public:
 
 	unsigned int getCountdown() const;
 	//check if the unit is a good candidate for the Task and store it's score in the given var
+	//also update best and worst unit in list
 	bool isUnitAGoodCandidate(const BWAPI::Unit& unit, unsigned int& score);
+	bool registerUnit(const BWAPI::Unit& unit);
+
+	void setMaxUnit(unsigned int count);
 
 private : 
 	//type de fiche
@@ -38,7 +42,13 @@ private :
 	unsigned int countdown;
 
 	// registered units to complete the task (Unit, intérêt)
-	std::list<std::pair<BWAPI::Unit, int>> registeredUnits;
-	unsigned int getScore(const BWAPI::Unit&) const;
+	std::list<std::pair<BWAPI::Unit, unsigned int>> registeredUnits;
+	//return the score of the given unit based on the unitOrder and actionType
+	unsigned int getScore(const BWAPI::Unit&);
+	
+	//change dynamically based on strategy needs
+	unsigned int maxUnitCount;
+	std::list<std::pair<BWAPI::Unit, unsigned int>>::iterator bestunit;
+	std::list<std::pair<BWAPI::Unit, unsigned int>>::iterator worstUnit;
 };
 
