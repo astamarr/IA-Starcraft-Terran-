@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Source\Dll.cpp" />
+    <ClCompile Include="Source\ExampleAIModule.cpp" />
+    <ClCompile Include="Source\">
+      <Filter>IAModules</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CombatIA.cpp" />
+    <ClCompile Include="Source\EconomieIA.cpp" />
+    <ClCompile Include="Source\Fiche.cpp" />
+    <ClCompile Include="Source\IAManager.cpp" />
+    <ClCompile Include="Source\RecolteIA.cpp" />
+    <ClCompile Include="Source\StrategyManager.cpp" />
+    <ClCompile Include="Source\BuildingPlacer.cpp" />
+    <ClCompile Include="Source\Exceptions.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\IAManager.h" />
+    <ClInclude Include="Source\RecolteIA.h" />
+    <ClInclude Include="Source\ExampleAIModule.h" />
+    <ClInclude Include="Source\EconomieIA.h" />
+    <ClInclude Include="Source\Fiche.h" />
+    <ClInclude Include="Source\CombatIA.h" />
+    <ClInclude Include="Source\StrategyManager.h" />
+    <ClInclude Include="RectangleArray.h" />
+    <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="Source\RectangleArray.h" />
+    <ClInclude Include="Source\BuildingPlacer.h" />
+    <ClInclude Include="Source\Exceptions.h" />
+  </ItemGroup>
+</Project>
