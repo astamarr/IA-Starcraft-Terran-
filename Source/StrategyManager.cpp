@@ -1,5 +1,7 @@
 #include "StrategyManager.h"
 
+using namespace BWAPI;
+using namespace Filter;
 
 StrategyManager::StrategyManager()
 {
@@ -20,8 +22,39 @@ StrategyManager::~StrategyManager()
 
 void StrategyManager::update(const int& framesCount)
 {
-	//int framerate = BWAPI::Broodwar->getAverageFPS();
-	if (framesCount % 5 == 0) fightsManager->update();
-	if (framesCount % 10 == 0) gathererManager->update();
-	if (framesCount % 30 == 0) ressourcesManager->update();
+	Unitset units = Broodwar->self()->getUnits();
+	Unitset workers, fighters, buildings;
+
+	if (Broodwar->getFrameCount() % Broodwar->getLatencyFrames() != 0)
+		return;
+
+	for (auto &u : units)
+	{
+		if (!u->exists())
+			continue;
+		if (u->isLockedDown() || u->isMaelstrommed() || u->isStasised())
+			continue;
+		if (u->isLoaded() || !u->isPowered() || u->isStuck())
+			continue;
+		if (!u->isCompleted() || u->isConstructing())
+			continue;
+		
+		if (u->getType().isWorker())
+		{
+			workers.emplace(u);
+		}
+		else if (u->getType().isResourceDepot()) // A resource depot is a Command Center, Nexus, or Hatchery
+		{
+			buildings.emplace(u);
+		}
+
+	} // closure: unit iterator
+
+	fightsManager->assignUnits(fighters);
+	gathererManager->assignUnits(workers);
+	ressourcesManager->assignUnits(buildings);
+
+	fightsManager->update();
+	gathererManager->update();
+	ressourcesManager->update();
 }

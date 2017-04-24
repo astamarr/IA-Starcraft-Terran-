@@ -14,6 +14,9 @@ private:
 	Fiche createFiche();
 	short minerals;
 	short gas;
+
+	Fiche* ficheMinerals;
+	Fiche* ficheGas;
 };
 
 /*
