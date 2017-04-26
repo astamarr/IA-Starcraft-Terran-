@@ -17,7 +17,7 @@ public:
 	void removeFiche(std::shared_ptr<Fiche> fiche);
 
 private:
-	IAManager* ressourcesManager;
+	IAManager* EconomieManager;
 	IAManager* fightsManager;
 	IAManager* gathererManager;
 

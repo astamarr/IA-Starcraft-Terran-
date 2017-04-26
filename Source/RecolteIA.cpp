@@ -24,9 +24,9 @@ Fiche RecolteIA::createFiche()
 
 void RecolteIA::update()
 {
-	setRessourcesRequired(Broodwar->self()->minerals, Broodwar->self()->gas);
+	setRessourcesRequired(Broodwar->self()->minerals(), Broodwar->self()->gas());
 
-	for (auto &u : assignedUnits)
+	for (Unit u : assignedUnits)
 	{
 		if (u->isIdle())
 		{

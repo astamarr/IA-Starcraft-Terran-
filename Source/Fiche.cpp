@@ -109,4 +109,4 @@ unsigned int Fiche::getScore(const BWAPI::Unit& unit)
 	}
 		
 	return score;
-}
+	}

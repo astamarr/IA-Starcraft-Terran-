@@ -139,7 +139,7 @@ void ExampleAIModule::onFrame()
       } // closure: if idle
 
     }
-    else if ( u->getType().isResourceDepot() ) // A resource depot is a Command Center, Nexus, or Hatchery
+    else if ( u->getType().isResourceDepot() ) // A resource depot is a Command MainCommandCenter, Nexus, or Hatchery
     {
 
       // Order the depot to construct more workers! But only when it is idle.

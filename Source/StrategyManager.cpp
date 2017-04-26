@@ -6,7 +6,7 @@ using namespace Filter;
 StrategyManager::StrategyManager()
 {
 	//décisions de construction, research, etc..
-	ressourcesManager = new EconomieIA();
+	EconomieManager = new EconomieIA();
 	//décision de combat, production d'unité, upgarde, ...
 	fightsManager = new CombatIA();
 	//décisions de planification de récoltes 
@@ -15,7 +15,7 @@ StrategyManager::StrategyManager()
 
 StrategyManager::~StrategyManager()
 {
-	delete ressourcesManager;
+	delete EconomieManager;
 	delete fightsManager;
 	delete gathererManager;
 }
@@ -43,7 +43,7 @@ void StrategyManager::update(const int& framesCount)
 		{
 			workers.emplace(u);
 		}
-		else if (u->getType().isResourceDepot()) // A resource depot is a Command Center, Nexus, or Hatchery
+		else if (u->getType().isResourceDepot()) // A resource depot is a Command MainCommandCenter, Nexus, or Hatchery
 		{
 			buildings.emplace(u);
 		}
@@ -52,9 +52,10 @@ void StrategyManager::update(const int& framesCount)
 
 	fightsManager->assignUnits(fighters);
 	gathererManager->assignUnits(workers);
-	ressourcesManager->assignUnits(buildings);
+	EconomieManager->assignUnits(buildings);
+
 
 	fightsManager->update();
 	gathererManager->update();
-	ressourcesManager->update();
+	EconomieManager->update();
 }
