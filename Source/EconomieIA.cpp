@@ -5,6 +5,7 @@ using namespace Filter;
 
 EconomieIA::EconomieIA()
 {
+	
 	Broodwar << "c'est moddddddi" << std::endl;
 	defaultBehaviour = new Fiche(Fiche::Type::BUILDING, BWAPI::UnitTypes::Terran_Refinery, BWAPI::UnitCommandTypes::Build);
 	supplyProviderType = Broodwar->self()->getRace().getSupplyProvider();
@@ -16,6 +17,7 @@ EconomieIA::EconomieIA()
 			MainCommandCenter = u;
 		}
 	}
+	
 }
 
 EconomieIA::~EconomieIA()
@@ -26,12 +28,11 @@ Fiche EconomieIA::createFiche()
 {
 	Fiche fiche(Fiche::Type::BUILDING, BWAPI::UnitTypes::Terran_Refinery, BWAPI::UnitCommandTypes::Build);
 	return fiche;
-
 }
 
 void EconomieIA::update()
 {
-
+	AddToBuildQueue(BWAPI::UnitTypes::Terran_Refinery, false);
 	CurrentFrame = Broodwar->getFrameCount();
 
 
@@ -41,16 +42,27 @@ void EconomieIA::update()
 	}
 
 
-	if (Broodwar->self()->minerals() > 500)
+	if (Broodwar->self()->minerals() > 200 /*&& Broodwar->self()->incompleteUnitCount(BWAPI::UnitTypes::Terran_Barracks) == 0 */)
 	{
-		BuildingQueue.push_back(new BuildOrder(BWAPI::UnitTypes::Terran_Barracks, MainCommandCenter, false));
+		AddToBuildQueue(BWAPI::UnitTypes::Terran_Barracks,  false);
 	}
+
+
 
 	//On teste si on est en dèche de supply
 	CheckSupply();
 
 	//On essaye de construire les batiments de la liste d'attente
 	TriggerBuildQueue();
+	
+
+	for (Unit n : Caserne)
+	{
+		if (n->isIdle() && !n->isTraining() && ReservedMinerals == 0 && !SupplyBlocked)
+		{
+			n->train(BWAPI::UnitTypes::Terran_Marine);
+		}
+	}
 }
 
 
@@ -60,35 +72,43 @@ void EconomieIA::CheckSupply()
 
 	if (SupplyBlocked == true)
 	{
-		if (BWAPI::Broodwar->self()->supplyTotal() > (BWAPI::Broodwar->self()->supplyUsed() + 2))
+		if (BWAPI::Broodwar->self()->supplyTotal() > (BWAPI::Broodwar->self()->supplyUsed() + 4))
 			{
 				SupplyBlocked = false;
 			}
 	}
 	
-	if (((BWAPI::Broodwar->self()->supplyTotal() - BWAPI::Broodwar->self()->supplyUsed()) <= 2) && Broodwar->self()->incompleteUnitCount(supplyProviderType) == 0)
+	else if (((BWAPI::Broodwar->self()->supplyTotal() - BWAPI::Broodwar->self()->supplyUsed()) <= 2) && Broodwar->self()->incompleteUnitCount(supplyProviderType) == 0)
 	{
 		
-		Broodwar << "OULALA C LA DECHE" << std::endl;
-		Broodwar << BWAPI::Broodwar->self()->supplyTotal() << std::endl;
-		Broodwar << "-" << std::endl;
-		Broodwar << BWAPI::Broodwar->self()->supplyUsed() << std::endl;
-		// ça fait moins chier que de refaire un foutu compteur de frames pour éviter le flood...
-		for (BuildOrder* n : BuildingQueue)
-		{
-			if (n->Building == supplyProviderType)
-			{
-				Broodwar << "ON ON VIENT DE SAUTER OUF " << std::endl;
-				return;
-			}
-			
-		}
-		Broodwar << "ON AJOUTE" << std::endl;
-		// on ajoute un ordre de construction prioritaire de supply a la queue
+		AddToBuildQueue(supplyProviderType, true);
 		SupplyBlocked = true;
-		BuildingQueue.push_back(new BuildOrder(supplyProviderType, MainCommandCenter, true));
+
 	}
 }
+
+
+
+
+void EconomieIA::AddToBuildQueue(UnitType type, bool HighPriority)
+{
+	if (SupplyBlocked && type != supplyProviderType)
+	{
+		return;
+	}
+	
+	for (BuildOrder* &n : BuildingQueue)
+	{
+		
+		if (n->Building == type)
+		{
+				return;
+		}
+	}
+	BuildingQueue.push_back(new BuildOrder(type, MainCommandCenter, HighPriority));
+
+}
+
 
 // ça essaye de lancer toutes les constructions 
 void  EconomieIA::TriggerBuildQueue()
@@ -96,10 +116,16 @@ void  EconomieIA::TriggerBuildQueue()
 
 	for (BuildOrder* n : BuildingQueue)
 	{
+		if (SupplyBlocked && n->Building != supplyProviderType)
+		{
+			continue;
+		}
+
 		if (n->LastTimeChecked == 0 || CurrentFrame > n->LastTimeChecked + 100)
 		{
-			bool success = Build(n);
-			if (success)
+			
+			 Build(n);
+			if (n->HasFinishedBuilding)
 			{
 				BuildingQueue.remove(n);
 				delete(n);
@@ -110,30 +136,46 @@ void  EconomieIA::TriggerBuildQueue()
 	}
 }
 
-bool EconomieIA::Build( BuildOrder* Order)
+void EconomieIA::Build( BuildOrder* Order)
 {
 	Order->LastTimeChecked = Broodwar->getFrameCount();
 
+
+	if (Order->IsCurrentlyBuilding == true)
+	{
+		if (!Order->AssignedBuilder->isConstructing() )
+		{
+			
+			Order->IsCurrentlyBuilding = false;
+			Order->HasFinishedBuilding = true;
+			if (Order->HasReserveRessources)
+			{
+				ReservedMinerals -= Order->Building.mineralPrice();
+				ReservedGas -= Order->Building.gasPrice();
+			}	
+		}
+		return;
+	}
+
 	//Check financier , si batiment prioritaire et pas assez de thunes ==> on lock les fonds. En fait on peut refactorer tout le code de reservedmineral par un simple bool...
-	if ((Broodwar->self()->minerals() < Order->Building.mineralPrice()) || (Broodwar->self()->gas() < Order->Building.gasPrice()))
+	if (((Broodwar->self()->minerals() < Order->Building.mineralPrice()) || (Broodwar->self()->gas() < Order->Building.gasPrice())))
 	{
 		if (Order->HighPriority &&  !Order->HasReserveRessources)
 		{
 			ReservedMinerals += Order->Building.mineralPrice();
 			ReservedGas += Order->Building.gasPrice();
-			Broodwar << " ON RESERVE " << ReservedMinerals << std::endl;
 			Order->HasReserveRessources = true;
 		}
-		Broodwar << " j'ai pas de sous " << std::endl;
-		return false;
+	
+		return;
 	}
 
-	Unit supplyBuilder = Order->BuildLocation->getClosestUnit(GetType == Order->Building.whatBuilds().first && (IsIdle || IsGatheringMinerals) && IsOwned);
-	if (supplyBuilder)
+	Unit Builder = Order->BuildLocation->getClosestUnit(GetType == Order->Building.whatBuilds().first && (IsIdle || IsGatheringMinerals) && IsOwned);
+	if (Builder)
 	{
-		if (supplyProviderType.isBuilding())
+		if (Order->Building.isBuilding())
 		{
-			TilePosition targetBuildLocation = Broodwar->getBuildLocation(supplyProviderType, supplyBuilder->getTilePosition());
+			TilePosition targetBuildLocation = Broodwar->getBuildLocation(Order->Building, Builder->getTilePosition());
 			if (targetBuildLocation)
 			{
 				// Register an event that draws the target build location
@@ -142,24 +184,42 @@ bool EconomieIA::Build( BuildOrder* Order)
 					Position(targetBuildLocation + supplyProviderType.tileSize()),
 					Colors::Blue);
 
-				Broodwar << "BUILD OMG " << std::endl;
-				Broodwar << supplyBuilder << std::endl;
+			
+				//Broodwar << Builder << std::endl;
 				// Order the builder to construct the supply structure
-		
-				supplyBuilder->build(Order->Building, targetBuildLocation);
+			
+				bool Success = Builder->build(Order->Building, targetBuildLocation);
+				if (Success){
 					Order->IsCurrentlyBuilding = true;
+					Order->AssignedBuilder = Builder;
 
-					if (Order->HasReserveRessources)
-					{
-						ReservedMinerals -= Order->Building.mineralPrice();
-						ReservedGas -= Order->Building.gasPrice();
-					}
-					return true;
+				}
 
-				Broodwar << "WALA " << std::endl;
+			
 			}
 		}
-		return false;
 	}
 }
+
+void EconomieIA::onUnitCreate(BWAPI::Unit unit)
+{
+	
+}
+
+ void EconomieIA::onUnitComplete(BWAPI::Unit unit)
+ {
+	 UnitType NewUnitType = unit->getType();
+	
+	 if (NewUnitType.isBuilding())
+	 {
+		
+	
+
+		 if (NewUnitType == BWAPI::UnitTypes::Terran_Barracks)
+		 {
+			 Caserne.emplace(unit);
+		 }
+
+	 }
+ };
 

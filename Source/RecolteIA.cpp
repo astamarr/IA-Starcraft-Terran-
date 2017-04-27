@@ -49,10 +49,19 @@ void RecolteIA::update()
 	}
 }
 
-void RecolteIA::setRessourcesRequired(short minerals_t, short gas_t)
+ void RecolteIA::setRessourcesRequired(short minerals_t, short gas_t)
 {
 	minerals = minerals_t;
 	gas = gas_t;
 	defaultBehaviour = (minerals > gas) ? ficheMinerals : ficheGas;
 
 }
+
+ int RecolteIA::GetNumberOfWorkers()
+ {
+	 return (int)assignedUnits.size();
+
+ }
+
+
+

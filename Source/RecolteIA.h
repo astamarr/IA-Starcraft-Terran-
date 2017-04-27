@@ -8,13 +8,13 @@ public:
 	RecolteIA();
 	~RecolteIA();
 	void update();
-
+	int GetNumberOfWorkers();
 	void setRessourcesRequired(short, short);
 private:
 	Fiche createFiche();
 	short minerals;
 	short gas;
-
+	
 	Fiche* ficheMinerals;
 	Fiche* ficheGas;
 };
